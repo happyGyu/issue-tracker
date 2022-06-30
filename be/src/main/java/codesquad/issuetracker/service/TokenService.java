@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class TokenService {
 
     private static final String LOGOUT_FLAG = "LOGOUT";
-    private static final long REFRESH_TOKEN_DURATION_MINUTE = 2L;
+    private static final long REFRESH_TOKEN_DURATION_MINUTE = 10L;
 
     private final RedisRepository redisRepository;
     private final AccessTokenProvider accessTokenProvider;
@@ -33,8 +33,7 @@ public class TokenService {
         return refreshToken;
     }
 
-    public String validateDurationOfRefreshToken(String refreshTokenString) {
-        RefreshToken refreshToken = refreshTokenProvider.convertToObject(refreshTokenString);
+    public String validateDurationOfRefreshToken(RefreshToken refreshToken) {
         String memberId = refreshToken.getMemberId();
 
         if (redisRepository.findByKey(memberId) == null) {
@@ -48,10 +47,7 @@ public class TokenService {
         return !Objects.equals(redisRepository.findByKey(accessToken), LOGOUT_FLAG);
     }
 
-    public void invalidateToken(String accessTokenString, String refreshTokenString) {
-        AccessToken accessToken = accessTokenProvider.convertToObject(accessTokenString);
-        RefreshToken refreshToken = refreshTokenProvider.convertToObject(refreshTokenString);
-
+    public void invalidateToken(AccessToken accessToken, RefreshToken refreshToken) {
         redisRepository.save(accessToken.getToken(), LOGOUT_FLAG, Duration.ofMillis(accessToken.getRestOfExpiration()));
         redisRepository.deleteByKey(refreshToken.getMemberId());
     }
