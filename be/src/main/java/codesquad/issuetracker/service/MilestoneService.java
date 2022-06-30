@@ -54,10 +54,6 @@ public class MilestoneService {
 
     @Transactional
     public void delete(Long id) {
-        Milestone milestone = getMilestoneByIdOrThrow(id);
-
-        milestone.getIssues().forEach(issue -> issue.updateMilestone(null));
-
         milestoneRepository.deleteById(id);
     }
 

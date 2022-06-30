@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PreRemove;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -62,5 +63,10 @@ public class Milestone {
 
     public boolean hasSameStatus(MilestoneStatus status) {
         return this.status.equals(status);
+    }
+
+    @PreRemove
+    public void removeIssues() {
+        this.issues.forEach(issue -> issue.updateMilestone(null));
     }
 }
